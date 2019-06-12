@@ -1,0 +1,121 @@
+body{
+
+}
+.loginPage{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+}
+.loginPage > div{
+    display: block;
+    width: 100%;
+    text-align: center;
+    max-width: 500px;
+    margin: 0 auto;
+    background: #f4f4f4;
+    padding: 60px;
+}
+.loginPage h1{
+    font-size: 30px;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+}
+.loginPage form{
+
+}
+.loginPage input{
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0;
+    font-size: 14px;
+    margin-bottom: 10px;
+    padding: 12px 15px !important;
+    height: auto;
+}
+.loginPage button{
+    background: #4CAF50;
+    color: white !important;
+    border: 0;
+    border-radius: 0;
+    outline: 0 !important;
+    box-shadow: none !important;
+    padding: 8px 20px;
+    cursor: pointer !important;
+}
+.loginPage p{
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+.searchPage{
+
+}
+.search{
+    width: 100%;
+    margin: 70px 0 20px;
+    text-align: center;
+}
+.search input{
+    width: 400px;
+    font-size: 14px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    outline: 0 !important;
+}
+.search button{
+    font-size: 14px;
+    border-radius: 0;
+    padding: 10px 15px;
+    vertical-align: top;
+    margin: 0 0 0 10px;
+}
+.planets{
+
+}
+.planets ul{
+    padding: 0;
+    margin: 0;
+    font-size: 14px;
+    list-style: none;
+    width: 100%;
+    vertical-align: top;
+    display: table;
+}
+.planets li{
+    display: inline-block;
+    background: #f8f8f8;
+    padding: 15px;
+    margin-bottom: 5px;
+    width: calc(33.333% - 5px);
+    margin-right: 5px;
+    text-align: center;
+    vertical-align: top;
+}
+.planets li.bgFont{
+    font-weight: bold;
+    font-size: 18px;
+    padding: 12px 15px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
