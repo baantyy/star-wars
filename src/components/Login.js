@@ -8,44 +8,52 @@ class Login extends React.Component{
             username: "",
             password: "",
             status: "",
-            isLoaded: false,
-            people: []
+            isSubmitting: false
         }
     }
 
     componentDidMount(){
         document.title = "Login"
-        axios.get(`https://swapi.co/api/people`)
-            .then(res => {
-                this.setState(() => ({
-                    people: res.data.results,
-                    isLoaded: true
-                }))
-            })
-            .catch(err => {
-                console.log(err)
-            })
     }
 
     handleSubmit = (e) => {
         e.preventDefault()
-        const { username, password, people } = this.state
+        const { username, password } = this.state
         if(username === ''){
             this.setState({ status: 'Username is required' })
         }else if(password === ''){
             this.setState({ status: 'Password is required' })
         }else{
-            const user = people.find(user => user.name === username)
-            if(!user){
-                this.setState({ status: `Username doesn't exist` })
-            }else{
-                if(user.birth_year !== password){
-                    this.setState({ status: 'Password is incorrect' })
-                }else{
-                    localStorage.setItem('user', JSON.stringify(username))
-                    this.props.history.push("/search")
-                }
-            }
+            this.setState({ isSubmitting: true })
+            axios.get(`https://swapi.co/api/people/?search=${username}`)
+                .then(res => {
+                    if(res.data.results.length > 0){
+                        if(res.data.results[0].name === username){
+                            if(res.data.results[0].birth_year === password){
+                                localStorage.setItem('user', JSON.stringify(username))
+                                this.props.history.push("/search")
+                            }else{
+                                this.setState(() => ({ 
+                                    status: 'Password is incorrect',
+                                    isSubmitting: false
+                                }))
+                            }
+                        }else{
+                            this.setState(() => ({ 
+                                status: 'Username is invalid',
+                                isSubmitting: false
+                            }))
+                        }
+                    }else{
+                        this.setState(() => ({ 
+                            status: 'Username is invalid',
+                            isSubmitting: false
+                        }))
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                })
         }
     }
 
@@ -58,37 +66,35 @@ class Login extends React.Component{
     }
 
     render(){
-        const { username, password, status, isLoaded } = this.state
+        const { username, password, status, isSubmitting } = this.state
         return(
             <div className="loginPage">
-                { isLoaded && 
-                    <div>
-                        <h1>Login </h1>
-                        <form onSubmit={this.handleSubmit}>
-                            
-                            <input type="text"
-                                name="username"
-                                value={username}
-                                onChange={this.handleChange}
-                                className="form-control"
-                                placeholder="Username"
-                                />
+                <div>
+                    <h1>Login </h1>
+                    <form onSubmit={this.handleSubmit}>
                         
-                            <input type="password"
-                                name="password"
-                                value={password}
-                                onChange={this.handleChange}
-                                className="form-control"
-                                placeholder="Password"
-                                />      
-                                
-                            { status && <p className="text-danger">{status}</p> }
+                        <input type="text"
+                            name="username"
+                            value={username}
+                            onChange={this.handleChange}
+                            className="form-control"
+                            placeholder="Username"
+                            />
+                    
+                        <input type="password"
+                            name="password"
+                            value={password}
+                            onChange={this.handleChange}
+                            className="form-control"
+                            placeholder="Password"
+                            />      
+                            
+                        { status && <p className="text-danger">{status}</p> }
 
-                            <button type="submit" className="btn">Login</button>
+                        <button type="submit" className="btn">{ isSubmitting ? <i className="fas fa-spin fa-sync-alt"></i> : 'Login' }</button>
 
-                        </form>
-                    </div>
-                }
+                    </form>
+                </div>
             </div>
         )
     }

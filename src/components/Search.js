@@ -10,8 +10,7 @@ class Login extends React.Component{
             filteredPlanets: [],
             isLoaded: false,
             searchCount: 15,
-            user: "",
-            status: ""
+            user: ""
         }
     }
 
@@ -20,7 +19,7 @@ class Login extends React.Component{
             this.props.history.push('/')
         }else{
             document.title = "Search"
-            axios.get(`https://swapi.co/api/planets`)
+            axios.get(`https://swapi.co/api/planets/`)
                 .then(res => {
                     this.setState(() => ({
                         planets: res.data.results,
@@ -28,18 +27,18 @@ class Login extends React.Component{
                         isLoaded: true,
                         user: JSON.parse(localStorage.getItem('user'))
                     }))
+                    this.resetCounter()
                 })
                 .catch(err => {
                     console.log(err)
                 })
-
-            setInterval(() => {
-                this.setState(() => ({
-                    searchCount: 15,
-                    status: ""
-                }))
-            }, 60000)
         }
+    }
+
+    resetCounter = () => {
+        setInterval(() => {
+            this.setState({ searchCount: 15 })
+        }, 60000)
     }
 
     handleSearch = (e) => {
@@ -55,13 +54,11 @@ class Login extends React.Component{
             if(searchCount > 0){
                 this.setState((prevState) => ({
                     filteredPlanets: prevState.planets.filter(planet => planet.name.toLowerCase().includes(value.toLowerCase())),
-                    searchCount: prevState.searchCount - 1,
-                    status: ""
+                    searchCount: prevState.searchCount - 1
                 }))
             }else{
                 this.setState(() => ({
-                    filteredPlanets: [],
-                    status: "Max Limit Reached."
+                    filteredPlanets: []
                 }))
             }
         }
@@ -74,13 +71,13 @@ class Login extends React.Component{
 
     render(){
 
-        const { search, filteredPlanets, isLoaded, user, status, searchCount } = this.state
+        const { search, filteredPlanets, isLoaded, user, searchCount } = this.state
         const population = (filteredPlanets.length > 0) ? filteredPlanets.map(planet => planet.population !== 'unknown' ? Number(planet.population) : 0) : [0]
-        const largest = Math.max(...population)
+        const largest = String(Math.max(...population))
         
         return(
             <div className="searchPage">
-                { isLoaded && 
+                { isLoaded ?
                 <React.Fragment>
                     <div className="search">
                         <input type="text"
@@ -90,9 +87,7 @@ class Login extends React.Component{
                             value={search}
                             />
 
-                        <button className="btn btn-danger"
-                                onClick={this.logout}>
-                                Logout</button>
+                        <button className="btn btn-danger" onClick={this.logout}>Logout</button>
                     </div>
                     <div className="container">
 
@@ -103,14 +98,17 @@ class Login extends React.Component{
                                 { (filteredPlanets.length > 0 && search !== "") &&
                                     filteredPlanets.map(planet => {
                                         return (
-                                            <li key={ planet.name } className={ largest == planet.population ? 'bgFont' : '' }>{ planet.name }</li>
+                                            <li key={ planet.name } className={ largest === planet.population ? 'bgFont' : '' }>{ planet.name }</li>
                                         )
                                     })
                                 }
                             </ul>
                         </div>
                     </div>
-                </React.Fragment>
+                </React.Fragment> :
+                <div className="pageLoader">
+                    <div className="spinner-grow" role="status"></div>
+                </div>
                 }
             </div>
         )
