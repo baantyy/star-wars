@@ -7,7 +7,6 @@ class Search extends React.Component{
         this.state = {
             planets: [],
             search: "",
-            filteredPlanets: [],
             isLoaded: false,
             searchCount: 15,
             user: ""
@@ -19,26 +18,27 @@ class Search extends React.Component{
             this.props.history.push('/')
         }else{
             document.title = "Search"
-            axios.get(`https://swapi.co/api/planets/`)
+            this.setState({ user: JSON.parse(localStorage.getItem('user')) })
+            setInterval(() => {
+                this.setState({ searchCount: 15 })
+            }, 60000)
+        }
+    }
+
+    planetSearch = (value) => {
+        if(value !== ""){
+            this.setState({ isLoaded: true })
+            axios.get(`https://swapi.co/api/planets/?search=${value}`)
                 .then(res => {
                     this.setState(() => ({
                         planets: res.data.results,
-                        filteredPlanets: res.data.results,
-                        isLoaded: true,
-                        user: JSON.parse(localStorage.getItem('user'))
+                        isLoaded: false
                     }))
-                    this.resetCounter()
                 })
                 .catch(err => {
                     console.log(err)
                 })
         }
-    }
-
-    resetCounter = () => {
-        setInterval(() => {
-            this.setState({ searchCount: 15 })
-        }, 60000)
     }
 
     handleSearch = (e) => {
@@ -47,18 +47,16 @@ class Search extends React.Component{
         this.setState({ search: value })
 
         if(user === 'Luke Skywalker'){
-            this.setState((prevState) => ({
-                filteredPlanets: prevState.planets.filter(planet => planet.name.toLowerCase().includes(value.toLowerCase()))
-            }))
+            this.planetSearch(value)
         }else{
             if(searchCount > 0){
+                this.planetSearch(value)
                 this.setState((prevState) => ({
-                    filteredPlanets: prevState.planets.filter(planet => planet.name.toLowerCase().includes(value.toLowerCase())),
                     searchCount: prevState.searchCount - 1
                 }))
             }else{
                 this.setState(() => ({
-                    filteredPlanets: []
+                    planets: []
                 }))
             }
         }
@@ -71,45 +69,41 @@ class Search extends React.Component{
 
     render(){
 
-        const { search, filteredPlanets, isLoaded, user, searchCount } = this.state
-        const population = (filteredPlanets.length > 0) ? filteredPlanets.map(planet => planet.population !== 'unknown' ? Number(planet.population) : 0) : [0]
+        const { search, planets, isLoaded, user, searchCount } = this.state
+        const population = (planets.length > 0) ? planets.map(planet => planet.population !== 'unknown' ? Number(planet.population) : 0) : [0]
         const largest = String(Math.max(...population))
         
         return(
             <div className="searchPage">
-                { isLoaded ?
-                <React.Fragment>
-                    <div className="search">
-                        <input type="text"
-                            placeholder="Search Planet"
-                            onChange={this.handleSearch}
-                            name="search"
-                            value={search}
-                            />
+                <div className="search">
+                    <input type="text"
+                        placeholder="Search Planet"
+                        onChange={this.handleSearch}
+                        name="search"
+                        value={search}
+                        />
 
-                        <button className="btn btn-danger" onClick={this.logout}>Logout</button>
-                    </div>
-                    <div className="container">
-
-                        <p className="text-center">Max Api Request : { user === 'Luke Skywalker' ? 'Unlimited' : searchCount }</p>
-
-                        <div className="planets">
-                            <ul>
-                                { (filteredPlanets.length > 0 && search !== "") &&
-                                    filteredPlanets.map(planet => {
-                                        return (
-                                            <li key={ planet.name } className={ largest === planet.population ? 'bgFont' : '' }>{ planet.name }</li>
-                                        )
-                                    })
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                </React.Fragment> :
-                <div className="pageLoader">
-                    <div className="spinner-grow" role="status"></div>
+                    <button className="btn btn-danger" onClick={this.logout}>Logout</button>
                 </div>
-                }
+                <div className="container">
+
+                    <p className="text-center">Max Api Request : { user === 'Luke Skywalker' ? 'Unlimited' : searchCount }</p>
+
+                    <div className="planets">
+                        { isLoaded ? <div className="text-center"><i className="fas fa-spin fa-sync-alt"></i></div> :
+
+                            (planets.length > 0 && search !== "") ?
+                                <ul>
+                                    { planets.map(planet => {
+                                            return (
+                                                <li key={ planet.name } className={ largest === planet.population ? 'bgFont' : '' }>{ planet.name }</li>
+                                            )
+                                        })
+                                    }
+                                </ul> : search !== '' && <div className="text-center">No records found</div>
+                        }
+                    </div>
+                </div>
             </div>
         )
     }
