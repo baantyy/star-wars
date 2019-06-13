@@ -25,40 +25,27 @@ class Search extends React.Component{
         }
     }
 
-    planetSearch = (value) => {
+    handleSearch = (e) => {
+        const value = e.target.value
+        const { user } = this.state
+        this.setState({ search: value })
+        this.planetSearch(value, user)
+    }
+
+    planetSearch = (value, user) => {
         if(value !== ""){
             this.setState({ isLoaded: true })
             axios.get(`https://swapi.co/api/planets/?search=${value}`)
                 .then(res => {
-                    this.setState(() => ({
+                    this.setState((prevState) => ({
                         planets: res.data.results,
-                        isLoaded: false
+                        isLoaded: false,
+                        searchCount: user !== 'Luke Skywalker' ? prevState.searchCount - 1 : 15
                     }))
                 })
                 .catch(err => {
                     console.log(err)
                 })
-        }
-    }
-
-    handleSearch = (e) => {
-        const value = e.target.value
-        const { searchCount, user } = this.state
-        this.setState({ search: value })
-
-        if(user === 'Luke Skywalker'){
-            this.planetSearch(value)
-        }else{
-            if(searchCount > 0){
-                this.planetSearch(value)
-                this.setState((prevState) => ({
-                    searchCount: prevState.searchCount - 1
-                }))
-            }else{
-                this.setState(() => ({
-                    planets: []
-                }))
-            }
         }
     }
 
