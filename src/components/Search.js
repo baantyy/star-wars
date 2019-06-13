@@ -9,7 +9,8 @@ class Search extends React.Component{
             search: "",
             isLoaded: false,
             searchCount: 15,
-            user: ""
+            user: "",
+            intervalId: ""
         }
     }
 
@@ -18,11 +19,22 @@ class Search extends React.Component{
             this.props.history.push('/')
         }else{
             document.title = "Search"
-            this.setState({ user: JSON.parse(localStorage.getItem('user')) })
-            setInterval(() => {
-                this.setState({ searchCount: 15 })
+            const intervalId = setInterval(() => {
+                this.resetCounter()
             }, 60000)
+            this.setState(() => ({
+                intervalId,
+                user: JSON.parse(localStorage.getItem('user'))
+            }))
         }
+    }
+
+    componentWillUnmount(){
+        clearInterval(this.state.intervalId)
+    }
+
+    resetCounter = () => {
+        this.setState({ searchCount: 15 })
     }
 
     planetSearch = (value, user) => {
