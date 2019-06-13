@@ -25,13 +25,6 @@ class Search extends React.Component{
         }
     }
 
-    handleSearch = (e) => {
-        const value = e.target.value
-        const { user } = this.state
-        this.setState({ search: value })
-        this.planetSearch(value, user)
-    }
-
     planetSearch = (value, user) => {
         if(value !== ""){
             this.setState({ isLoaded: true })
@@ -46,6 +39,20 @@ class Search extends React.Component{
                 .catch(err => {
                     console.log(err)
                 })
+        }
+    }
+
+    handleSearch = (e) => {
+        const value = e.target.value
+        const { searchCount, user } = this.state
+        this.setState({ search: value })
+
+        if(searchCount > 0){
+            this.planetSearch(value, user)
+        }else{
+            this.setState(() => ({
+                planets: []
+            }))
         }
     }
 
